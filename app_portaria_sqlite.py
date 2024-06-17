@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from pynput import keyboard
 from threading import Timer
 import os
+from datetime import datetime
 
 # Função para carregar dados dos alunos do banco de dados SQLite
 def load_students_data():
@@ -27,6 +28,46 @@ def load_students_data():
 students_data = load_students_data()
 
 class BarcodeScannerApp:
+
+    def registrar_presenca(matricula):
+        # Conexão com o banco de dados SQLite
+        conn = sqlite3.connect('dados_alunos.db')
+        cursor = conn.cursor()
+        
+        # Obter a data atual no formato 'YYYY-MM-DD'
+        data_atual = datetime.now().strftime('%d-%m-%y')
+        coluna_entrada = f'{data_atual} entrada'
+        coluna_saida = f'{data_atual} saida'
+        horario_atual = datetime.now().strftime('%H:%M:%S')
+        
+        # Verificar se as colunas de entrada e saída existem, caso contrário, criar
+        cursor.execute(f"PRAGMA table_info(alunos)")
+        colunas = [info[1] for info in cursor.fetchall()]
+        
+        if coluna_entrada not in colunas:
+            cursor.execute(f"ALTER TABLE alunos ADD COLUMN '{coluna_entrada}' TEXT")
+        
+        if coluna_saida not in colunas:
+            cursor.execute(f"ALTER TABLE alunos ADD COLUMN '{coluna_saida}' TEXT")
+        
+        # Registrar o horário de entrada ou saída
+        cursor.execute(f"SELECT {coluna_entrada} FROM alunos WHERE Matricula = ?", (matricula,))
+        entrada = cursor.fetchone()
+        print(entrada)
+        
+        if entrada is None:
+            cursor.execute(f"UPDATE alunos SET '{coluna_entrada}' = ? WHERE Matricula = ?", (horario_atual, matricula))
+        else:
+            cursor.execute(f"SELECT '{coluna_saida}' FROM alunos WHERE Matricula = ?", (matricula,))
+            saida = cursor.fetchone()
+            
+            if saida is None:
+                cursor.execute(f"UPDATE alunos SET '{coluna_saida}' = ? WHERE Matricula = ?", (horario_atual, matricula))
+        
+        # Confirmar as mudanças e fechar a conexão
+        conn.commit()
+        conn.close()
+    
     def __init__(self, root):
         self.root = root
         self.root.attributes('-fullscreen', True)
@@ -86,6 +127,8 @@ class BarcodeScannerApp:
     def update_labels(self, barcode):
         student = next((student for student in students_data if student['Matricula'] == barcode), None)
         if student:
+            numero_matricula = student['Matricula']
+            BarcodeScannerApp.registrar_presenca(numero_matricula)
             self.Nome_label.config(text=f"{student['Nome']}")
             self.Serie_label.config(text=f"{student['Serie']}")
             self.turma_label.config(text=f"{student['turma']}")
@@ -95,7 +138,7 @@ class BarcodeScannerApp:
                 image = image.resize((600, 800), Image.LANCZOS)
                 photo = ImageTk.PhotoImage(image)
                 self.photo_label.config(image=photo)
-                self.photo_label.image = photo  # Armazena a referência da imagem para evitar garbage collection
+                self.photo_label.image = photo
             else:
                 self.photo_label.config(image='', text="Foto não encontrada")
         else:
