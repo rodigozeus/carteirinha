@@ -1,0 +1,42 @@
+[
+    {
+        "Nome":"Ana Paula Arósio",
+        "Serie":"1ª",
+        "Turma":"A",
+        "Matricula":12345678,
+        "18-06-24-entrada":"06:49:53",
+        "18-06-24-saida":"06:50:37"
+    },
+    {
+        "Nome":"Lulu Santos",
+        "Serie":"3ª",
+        "Turma":"C",
+        "Matricula":23456789,
+        "18-06-24-entrada":"06:50:37",
+        "18-06-24-saida":"06:50:44"
+    },
+    {
+        "Nome":"Renato Russo",
+        "Serie":"2ª",
+        "Turma":"A",
+        "Matricula":34567890,
+        "18-06-24-entrada":"06:50:37",
+        "18-06-24-saida":"06:50:44"
+    },
+    {
+        "Nome":"Angélica que vai de Táxi",
+        "Serie":"2ª",
+        "Turma":"B",
+        "Matricula":87654321,
+        "18-06-24-entrada":"06:50:37",
+        "18-06-24-saida":"06:50:44"
+    },
+    {
+        "Nome":"Monalisa da Pintura",
+        "Serie":"1ª",
+        "Turma":"D",
+        "Matricula":98765432,
+        "18-06-24-entrada":"F",
+        "18-06-24-saida":"F"
+    }
+]

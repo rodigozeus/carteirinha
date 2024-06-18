@@ -33,37 +33,41 @@ class BarcodeScannerApp:
         # Conexão com o banco de dados SQLite
         conn = sqlite3.connect('dados_alunos.db')
         cursor = conn.cursor()
-        
+            
         # Obter a data atual no formato 'YYYY-MM-DD'
         data_atual = datetime.now().strftime('%d-%m-%y')
-        coluna_entrada = f'{data_atual} entrada'
-        coluna_saida = f'{data_atual} saida'
+        coluna_entrada = f'{data_atual}-entrada'
+        coluna_saida = f'{data_atual}-saida'
         horario_atual = datetime.now().strftime('%H:%M:%S')
-        
+            
         # Verificar se as colunas de entrada e saída existem, caso contrário, criar
         cursor.execute(f"PRAGMA table_info(alunos)")
         colunas = [info[1] for info in cursor.fetchall()]
-        
+            
         if coluna_entrada not in colunas:
             cursor.execute(f"ALTER TABLE alunos ADD COLUMN '{coluna_entrada}' TEXT")
-        
+            cursor.execute(f"UPDATE alunos SET '{coluna_entrada}' = 'F'")
+            conn.commit()
+            
         if coluna_saida not in colunas:
             cursor.execute(f"ALTER TABLE alunos ADD COLUMN '{coluna_saida}' TEXT")
-        
+            cursor.execute(f"UPDATE alunos SET '{coluna_saida}' = 'F'")
+            conn.commit()
+            
         # Registrar o horário de entrada ou saída
-        cursor.execute(f"SELECT {coluna_entrada} FROM alunos WHERE Matricula = ?", (matricula,))
+        query = f"""SELECT "{coluna_entrada}" FROM alunos WHERE Matricula = '{matricula}'"""
+        cursor.execute(query)
         entrada = cursor.fetchone()
-        print(entrada)
-        
-        if entrada is None:
+            
+        if entrada[0] == 'F':
             cursor.execute(f"UPDATE alunos SET '{coluna_entrada}' = ? WHERE Matricula = ?", (horario_atual, matricula))
         else:
-            cursor.execute(f"SELECT '{coluna_saida}' FROM alunos WHERE Matricula = ?", (matricula,))
+            cursor.execute(f"""SELECT "{coluna_saida}" FROM alunos WHERE Matricula = ?""", (matricula,))
             saida = cursor.fetchone()
-            
-            if saida is None:
+                
+            if saida[0] == 'F':
                 cursor.execute(f"UPDATE alunos SET '{coluna_saida}' = ? WHERE Matricula = ?", (horario_atual, matricula))
-        
+            
         # Confirmar as mudanças e fechar a conexão
         conn.commit()
         conn.close()
