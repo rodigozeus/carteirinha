@@ -62,11 +62,7 @@ class BarcodeScannerApp:
         if entrada[0] == 'F':
             cursor.execute(f"UPDATE alunos SET '{coluna_entrada}' = ? WHERE Matricula = ?", (horario_atual, matricula))
         else:
-            cursor.execute(f"""SELECT "{coluna_saida}" FROM alunos WHERE Matricula = ?""", (matricula,))
-            saida = cursor.fetchone()
-                
-            if saida[0] == 'F':
-                cursor.execute(f"UPDATE alunos SET '{coluna_saida}' = ? WHERE Matricula = ?", (horario_atual, matricula))
+            cursor.execute(f"UPDATE alunos SET '{coluna_saida}' = ? WHERE Matricula = ?", (horario_atual, matricula))
             
         # Confirmar as mudanças e fechar a conexão
         conn.commit()
